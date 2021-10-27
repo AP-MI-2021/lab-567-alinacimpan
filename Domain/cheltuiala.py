@@ -8,12 +8,7 @@ def creeaza_cheltuiala(nr_apartament: int, suma, data, tipul):
     :return: O cheltuiala.
     """
 
-    return {
-        "nr_apartament": nr_apartament,
-        "suma": suma,
-        "data": data,
-        "tipul": tipul,
-    }
+    return [nr_apartament, suma, data, tipul]
 
 def get_nr_apartament(cheltuiala):
     """
@@ -21,7 +16,7 @@ def get_nr_apartament(cheltuiala):
     :param cheltuiala: Cheltuiala.
     :return: Nr de apartament al cheltuielii.
     """
-    return cheltuiala["nr_apartament"]
+    return cheltuiala[0]
 
 
 
@@ -31,7 +26,7 @@ def get_suma(cheltuiala):
     :param cheltuiala: cheltuiala
     :return: suma cheltuita
     """
-    return cheltuiala["suma"]
+    return cheltuiala[1]
 
 def get_data(cheltuiala):
     """
@@ -39,7 +34,7 @@ def get_data(cheltuiala):
     :param cheltuiala: cheltuiala
     :return: Data cheltuielii
     """
-    return cheltuiala["data"]
+    return cheltuiala[2]
 
 
 def get_tipul(cheltuiala):
@@ -48,7 +43,7 @@ def get_tipul(cheltuiala):
     :param cheltuiala: cheltuiala
     :return: Tipul cheltuielii: intretinere, canal sau alte cheltuieli
     """
-    return cheltuiala["tipul"]
+    return cheltuiala[3]
 
 
 def get_str(cheltuiala):
