@@ -14,6 +14,7 @@ def test_create():
     params = (10, 120, 2021 - 4 - 30, 'alte cheltuieli')
     c_new = creeaza_cheltuiala(*params)
     new_cheltuieli = create(cheltuieli, *params)
+
     assert c_new in new_cheltuieli
     assert len(new_cheltuieli) == len(cheltuieli) + 1
     assert c_new in  new_cheltuieli

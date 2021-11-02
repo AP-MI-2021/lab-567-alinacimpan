@@ -1,5 +1,4 @@
 from Domain.cheltuiala import creeaza_cheltuiala, get_nr_apartament
-
 def create(lst_cheltuieli,
            nr_apartament, suma, data, tipul):
     """
