@@ -20,6 +20,17 @@ def get_id_cheltuiala(cheltuiala):
     """
     return cheltuiala[0]
 
+def get_by_id(id, cheltuieli):
+    '''
+    Functie folosita pentru exceptie, in care id-ul deja se afla in cheltuieli.
+    :param id: id-ul chetluielii.
+    :param cheltuieli: lista de cheltuieli.
+    :return: returneaza cheltuiala cu id-ul dat.
+    '''
+    for cheltuiala in cheltuieli:
+        if get_id_cheltuiala(cheltuiala) == id:
+            return cheltuiala
+
 
 def get_nr_apartament(cheltuiala):
     """
@@ -59,3 +70,12 @@ def get_tipul(cheltuiala):
 
 def get_str(cheltuiala):
     return f'Cheltuiala apartamentului cu numarul {get_nr_apartament(cheltuiala)}, din data de {get_data(cheltuiala)} are o suma de {get_suma(cheltuiala)}, fiind o cheltuiala de tipul {get_tipul(cheltuiala)},iar id-ul cheltuielii este: {get_id_cheltuiala(cheltuiala)} '
+
+
+def str_to_date(data):
+    try:
+        return datetime.strptime(data, "%Y.%m.%d").date()
+    except:
+        raise ValueError(
+            "data trebuie sa fie valida si sa aiba urmatorul format: YYYY, MM, DD"
+        )
