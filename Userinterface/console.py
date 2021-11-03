@@ -4,7 +4,7 @@ from Logic.crud import create, update, delete, read
 from Logic.Adunarea_unei_valori import add_value_if_date
 from Logic.cea_mai_mare_cheltuiala import biggest_sum_by_type
 from Logic.Sterge_cheltuieli import delete_all_expenses
-
+from Userinterface.command_line_console import run_cli
 
 def show_menu():
     print('1. CRUD ')
