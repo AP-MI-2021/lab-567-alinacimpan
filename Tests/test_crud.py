@@ -1,50 +1,71 @@
-from Domain.cheltuiala import creeaza_cheltuiala, get_nr_apartament, get_suma, get_data, get_tipul
-from Logic.crud import create, read, update, delete
-
-def get_datas():
-    return [
-        creeaza_cheltuiala(3, 360, 2020 - 12 - 1, 'canal'),
-        creeaza_cheltuiala(12, 200, 2021 - 6 - 20, 'intretinere'),
-        creeaza_cheltuiala(18, 180, 2019 - 2 - 28, 'alte cheltuieli'),
-        creeaza_cheltuiala(4, 260, 2020 - 9 - 27, 'intretinere')
-    ]
-
-def test_create():
-    cheltuieli = get_datas()
-    params = (10, 120, 2021 - 4 - 30, 'alte cheltuieli')
-    c_new = creeaza_cheltuiala(*params)
-    new_cheltuieli = create(cheltuieli, *params)
-
-    assert c_new in new_cheltuieli
-    assert len(new_cheltuieli) == len(cheltuieli) + 1
-    assert c_new in  new_cheltuieli
-
-def test_read():
-    cheltuieli = get_datas()
-    some_c = cheltuieli[2]
-    assert read(cheltuieli, get_nr_apartament(some_c)) == some_c
-    assert read(cheltuieli, None) == cheltuieli
-
-def test_update():
-    cheltuieli = get_datas()
-    c_updated = creeaza_cheltuiala(4, 652.8, 2021 - 4 - 18, 'intretinere')
-    updated = update(cheltuieli, 4, 652.8, 2021 - 4 - 18, 'intretinere')
-    assert c_updated in updated
-    assert c_updated not in cheltuieli
-    assert len(cheltuieli) == len(updated)
+from Domain.cheltuiala import get_nr_apartament, get_suma, get_data, get_tipul, get_id
+from Logic.crud import adauga_cheltuiala, sterge_cheltuiala, modifica_cheltuiala, get_by_id, get_by_numar_apartament
 
 
-def test_delete():
-    cheltuieli = get_datas()
-    to_delete = 3
-    c_deleted = read(cheltuieli, to_delete)
-    deleted = delete(cheltuieli, to_delete)
-    assert c_deleted not in deleted
-    assert c_deleted in cheltuieli
-    assert len(deleted) == len(cheltuieli) - 1
+def test_adauga_cheltuiala():
+    lista = []
+    lista = adauga_cheltuiala(1, 23, 230, "04.09.2021", "intretinere", lista)
 
-def test_crud():
-    test_create()
-    test_read()
-    test_update()
-    test_delete()
+    assert len(lista) == 1
+    assert get_id(get_by_id(1, lista)) == 1
+    assert get_nr_apartament(get_by_id(1, lista)) == 23
+    assert get_suma(get_by_id(1, lista)) == 230
+    assert get_data(get_by_id(1, lista)) == "04.09.2021"
+    assert get_tipul(get_by_id(1, lista)) == "intretinere"
+
+
+def test_sterge_cheltuiala():
+    lista = []
+    lista = adauga_cheltuiala(1, 13, 150, "06.10.2021", "canal", lista)
+    lista = adauga_cheltuiala(2, 45, 200, "23.10.2021", "intretinere", lista)
+
+    lista = sterge_cheltuiala(1, lista)
+
+    assert len(lista) == 1
+    assert get_by_id(1, lista) is None
+    assert get_by_id(2, lista) is not None
+
+
+def test_modifica_cheltuiala():
+    lista = []
+    lista = adauga_cheltuiala(1, "1", 234, "12.02.2021", "canal", lista)
+    lista = adauga_cheltuiala(2, "23", 120, "23.10.2021", "alte cheltuieli", lista)
+
+    lista = modifica_cheltuiala(2, "23", 230, "04.10.2021", "intretinere", lista)
+
+    assert len(lista) == 2
+    cheltuiala_modificata = get_by_id(2, lista)
+    assert get_suma(cheltuiala_modificata) == 230
+    assert get_data(cheltuiala_modificata) == "04.10.2021"
+    assert get_tipul(cheltuiala_modificata) == "intretinere"
+    cheltuiala_nemodificata = get_by_id(1, lista)
+    assert get_suma(cheltuiala_nemodificata) == 234
+    assert get_data(cheltuiala_nemodificata) == "12.02.2021"
+    assert get_tipul(cheltuiala_nemodificata) == "canal"
+
+
+def test_get_by_id():
+    lista = []
+    lista = adauga_cheltuiala(1, 13, 150, "06.10.2021", "canal", lista)
+    lista = adauga_cheltuiala(2, 45, 200, "23.10.2021", "intretinere", lista)
+
+    assert get_by_id(1, lista) == [("id", 1), ("numar_apartament", 13), ("suma", 150), ("data", "06.10.2021"),
+                                   ("tipul", "canal")]
+    assert get_by_id(2, lista) == [("id", 2), ("numar_apartament", 45), ("suma", 200), ("data", "23.10.2021"),
+                                   ("tipul", "intretinere")]
+    assert get_by_id(5, lista) is None
+
+
+def test_get_by_numar_apartament():
+    lista = []
+    lista = adauga_cheltuiala(1, 13, 150, "06.10.2021", "canal", lista)
+    lista = adauga_cheltuiala(2, 45, 200, "23.10.2021", "intretinere", lista)
+    lista = adauga_cheltuiala(3, 45, 89.45, "12.03.2021", "canal", lista)
+
+    assert get_by_numar_apartament(45, lista) == [[("id", 2), ("numar_apartament", 45), ("suma", 200),
+                                                   ("data", "23.10.2021"),  ("tipul", "intretinere")], [("id", 3),
+                                                  ("numar_apartament", 45), ("suma", 89.45), ("data", "12.03.2021"),
+                                                  ("tipul", "canal")]]
+    assert get_by_numar_apartament(13, lista) == [[("id", 1), ("numar_apartament", 13), ("suma", 150),
+                                                   ("data", "06.10.2021"), ("tipul", "canal")]]
+    assert get_by_numar_apartament(4, lista) == []

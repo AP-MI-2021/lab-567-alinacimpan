@@ -1,16 +1,18 @@
-from Domain.cheltuiala import get_suma, get_tipul
+from Domain.cheltuiala import get_suma, get_tipul, get_nr_apartament
 
-
-def biggest_sum_by_type(cheltuieli: list, _type: str):
+def cea_mai_mare_cheltuiala_dupa_tip(lista):
     """
-    Fucntia returneaza cea mai mare valoare a cheltuielilor de un anumit tip
-    :param cheltuieli: list : lista de cheltuieli
-    :param _type: str : tip-ul caracteristic
-    :return:
+    Determina cea mai mare cheltuiala pentru fiecare tip de cheltuială
+    :param lista: lista de chetuieli
+    :return: cea mai mare chetuiala pentru fiecare tip de cheltuiala
     """
-    sum_max = 0
-    for cheltuiala in cheltuieli:
-        if get_sum(cheltuiala) > sum_max and get_type(cheltuiala) == _type:
-            sum_max = get_sum(cheltuiala)
-
-    return sum_max
+    rezultat = {}
+    for cheltuiala in lista:
+        tipul = get_tipul(cheltuiala)
+        suma = get_suma(cheltuiala)
+        if tipul in rezultat:
+            if suma > get_suma(rezultat[tipul]):
+                rezultat[tipul] = cheltuiala
+        else:
+            rezultat[tipul] = cheltuiala
+    return rezultat

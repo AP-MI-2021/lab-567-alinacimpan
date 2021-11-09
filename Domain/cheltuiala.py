@@ -1,3 +1,6 @@
+import datetime
+
+
 def creeaza_cheltuiala(id_cheltuiala,nr_apartament: int, suma, data, tipul):
     """
     Creeaza un dictionar ce reprezinta o cheltuiala.
@@ -68,14 +71,11 @@ def get_tipul(cheltuiala):
     return cheltuiala[4]
 
 
-def get_str(cheltuiala):
-    return f'Cheltuiala apartamentului cu numarul {get_nr_apartament(cheltuiala)}, din data de {get_data(cheltuiala)} are o suma de {get_suma(cheltuiala)}, fiind o cheltuiala de tipul {get_tipul(cheltuiala)},iar id-ul cheltuielii este: {get_id_cheltuiala(cheltuiala)} '
-
-
-def str_to_date(data):
-    try:
-        return datetime.strptime(data, "%Y.%m.%d").date()
-    except:
-        raise ValueError(
-            "data trebuie sa fie valida si sa aiba urmatorul format: YYYY, MM, DD"
-        )
+def to_string(cheltuiala):
+    """
+    Returneaza cheltuiala ca string
+    :param cheltuiala: cheltuiala careia vrem sa-i aflam datele
+    :return: cheltuiala ca string
+    """
+    return f"Id: {get_id_cheltuiala(cheltuiala)}; Numar apartament: {get_nr_apartament(cheltuiala)}; " \
+           f"Suma: {get_suma(cheltuiala)}; Data: {get_data(cheltuiala)}; Tipul: {get_tipul(cheltuiala)}"

@@ -1,20 +1,14 @@
-from Domain.cheltuieli import creeaza_cheltuiala, get_nr_apartment
-from Logic.sterge_cheltuieli import delete_all_expenses
+from Logic.crud import adauga_cheltuiala, get_by_numar_apartament
+from Logic.sterge_cheltuieli import sterge_toate_cheltuielile_apartament
 
-def get_datas():
-    return [
-        creeaza_cheltuiala(1, 32, 263, datetime.date(2021, 6, 20), 'canal'),
-        creeaza_cheltuiala(2, 15, 126, datetime.date(2021, 9, 27), 'intretinere'),
-        creeaza_cheltuiala(3, 24, 100, datetime.date(2020, 4, 18), 'alte cheltuieli'),
-        creeaza_cheltuiala(4, 56, 54,  datetime.date(2019, 4, 30), 'intretinere')
-    ]
+def test_sterge_toate_cheltuielile_apartament():
+    lista = []
+    lista = adauga_cheltuiala(1, 13, 150, "06.10.2021", "canal", lista)
+    lista = adauga_cheltuiala(2, 45, 200, "23.10.2021", "intretinere", lista)
+    lista = adauga_cheltuiala(3, 45, 89.45, "12.03.2021", "canal", lista)
 
-def test_delete_all_expenses():
-    list = get_data()
-    contor = 0
-    new_list = delete_all_expenses(list, 2)
-    assert len(new_list) == len(list) - 3
-    for creeaza_cheltuiala in new_list:
-        if get_nr_apartment(expense) == 2:
-            contor = contor + 1
-    assert contor == 0
+    lista = sterge_toate_cheltuielile_apartament(45, lista)
+    assert len(lista) == 1
+    assert get_by_numar_apartament(45, lista) == []
+    assert get_by_numar_apartament(13, lista) == [[("id", 1), ("numar_apartament", 13), ("suma", 150),
+                                                   ("data", "06.10.2021"), ("tipul", "canal")]]

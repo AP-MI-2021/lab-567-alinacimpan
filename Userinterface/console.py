@@ -1,145 +1,248 @@
 import datetime
-from Domain.cheltuiala import creeaza_cheltuiala, get_str, get_nr_apartament, get_suma, get_data, get_tipul
-from Logic.crud import create, update, delete, read
-from Logic.Adunarea_unei_valori import add_value_if_date
-from Logic.cea_mai_mare_cheltuiala import biggest_sum_by_type
-from Logic.Sterge_cheltuieli import delete_all_expenses
-from Userinterface.command_line_console import run_cli
 
-def show_menu():
-    print('1. CRUD ')
-    print('2. Ștergerea tuturor cheltuielilor pentru un apartament dat. ')
-    print('3. Adunarea unei valori la toate cheltuielile dintr-o dată citită. ')
-    print('4. Determinarea celei mai mari cheltuieli pentru fiecare tip de cheltuială. ')
-    print('x. EXIT ')
+from Domain.cheltuiala import to_string
+from Logic.crud import adauga_cheltuiala, sterge_cheltuiala, modifica_cheltuiala
+from Logic.Sterge_cheltuieli import sterge_toate_cheltuielile_apartament
+from Logic.Adunarea_unei_valori import adauga_valoare_data
+from Logic.cea_mai_mare_cheltuiala import cea_mai_mare_cheltuiala_dupa_tip
+from Logic.ordonare_descrescator import  ordonare_descrescator_cheltuieli_dupa_suma
+from Logic.sume_lunare import sume_lunare_apartament
 
 
-def read_date():
-    date_str = input('Dati data cu elementele separate printr-o liniuta: ')
-    date = date_str.split('-')
-    year = int(date[0])
-    month = int(date[1])
-    day = int(date[2])
-    return datetime.date(year, month, day)
+
+def print_meniu():
+    """
+    Meniul de afisat
+    """
+    print("1. Adauga cheltuiala")
+    print("2. Sterge cheltuiala")
+    print("3. Modifica cheltuiala")
+    print("4. Sterge toate cheltuielile pentru un apartament dat")
+    print("5. Aduna o valoare la toate cheltuielile dintr-o dată citită")
+    print("6. Determina cea mai mare cheltuiala pentru fiecare tip de cheltuială")
+    print("7. Ordoneaza cheltuielile descrescător după sumă.")
+    print("8. Afișarea sumelor lunare pentru fiecare apartament.")
+    print("u. Undo")
+    print("r. Redo")
+    print("a. Afisare cheltuieli")
+    print("x. Iesire")
 
 
-def handle_add(cheltuieli):
-    id_cheltuiala = int(input('Dati id-ul cheltuielii: '))
-    nr_apartament = int(input('Dati numarul apartamentului: '))
-    suma = float(input('Dati suma ce trebuie cheltuita: '))
-    date = read_date()
-    tip = input('Dati tipul: ')
-    return create(cheltuieli, nr_apartament, suma, date, tip)
+def ui_adauga_cheltuiala(lista, undo_list, redo_list):
+    """
+    Adauga o cheltuiala noua la lista
+    :param redo_list: lista pentru redo
+    :param undo_list: lista pentru undo
+    :param lista: lista de cheltuieli
+    :return: lista de cheltuilei + cheltuiala nou introdusa
+    """
+    try:
+        id = int(input("Dati id-ul cheltuielii: "))
+        numar_apartament = int(input("Dati numarul apartamentului: "))
+        suma = float(input("Dati suma: "))
+        data = datetime.datetime.strptime(input("Dati data (DD.MM.YYYY): "), "%d.%m.%Y")
+        data_string = datetime.datetime.strftime(data, "%d.%m.%Y")
+        tipul = input("Dati tipul (intretinere, canal, alte cheltuieli): ")
+        rezultat = adauga_cheltuiala(id, numar_apartament, suma, data_string, tipul, lista, undo_list, redo_list)
+        return rezultat
+    except ValueError as ve:
+        print(f"Eroare : {ve}")
+        return lista
+    except TypeError as te:
+        print(f"Eroare: {te}")
 
 
-def handle_modify(cheltuieli):
-    id_cheltuiala = int(input('Dati id-ul cheltuielii ce trebuie modificata: '))
-    nr_apartament = int(input('Dati numarul apartamentului ce ii trebuie modificata cheltuiala: '))
-    suma = float(input('Dati noua suma: '))
-    data = read_date()
-    tip = input('Dati noul tip: ')
-    return update(cheltuieli, nr_apartament, suma, data, tip)
+def ui_sterge_cheltuiala(lista, undo_list, redo_list):
+    """
+    Sterge o cheltuiala din lista de cheltuieli
+    :param redo_list: lista pentru redo
+    :param undo_list: lista pentru undo
+    :param lista: lista de cheltuieli
+    :return: lista de cheltuieli fara cheltuiala stearsa
+    """
+    try:
+        id_de_sters = int(input("Dati id-ul cheltuielii de sters: "))
+        rezultat = sterge_cheltuiala(id_de_sters, lista, undo_list, redo_list)
+        return rezultat
+    except ValueError as ve:
+        print(f"Eroare: {ve}")
+        return lista
 
 
-def handle_delete(cheltuieli):
-    id_cheltuiala = int(input('Dati id-ul cheltuielii ce se a sterge: '))
-    nr_apartament = int(input('Dati numarul apartamentului ce se a sterge: '))
-    cheltuieli = delete(cheltuieli, nr_apartament)
-    print('Stergerea a fost efectuata cu succes!')
-    return cheltuieli
+def ui_modifica_cheltuiala(lista, undo_list, redo_list):
+    """
+    Modifica o cheltuiala din lista
+    :param redo_list: lista pentru redo
+    :param undo_list: lista pentru undo
+    :param lista: lista de cheltuieli
+    :return: lista de cheltuieli cu modificarea aferenta a cheltuielii
+    """
+    try:
+        id = int(input("Dati id-ul cheltuielii de modificat: "))
+        numar_apartament = input("Dati noul numar de apartament: ")
+        suma = float(input("Dati noua suma: "))
+        data = datetime.datetime.strptime(input("Dati noua data (DD.MM.YYYY): "), "%d.%m.%Y")
+        data_string = datetime.datetime.strftime(data, "%d.%m.%Y")
+        tipul = input("Dati noul tip: ")
+        rezultat = modifica_cheltuiala(id, numar_apartament, suma, data_string, tipul, lista, undo_list, redo_list)
+        return rezultat
+    except ValueError as ve:
+        print(f"Eroare : {ve}")
+        return lista
 
 
-def handle_show_all(cheltuieli):
-    for chelt in cheltuieli:
-        print(get_str(chelt))
+def show_all(lista):
+    """
+    Afiseaza cheltuielile din lista
+    :param lista: lista de cheltuieli
+    :return: cheltuielile din lista afisate ca string
+    """
+    for cheltuiala in lista:
+        print(to_string(cheltuiala))
 
 
-def handle_show_details(cheltuieli):
-    d_cheltuiala = int(input('Dati id-ul cheltuielii pentru care doriti detalii: '))
-    nr_apartament = int(input('Dati numarul apartamentului pentru care doriti detalii: '))
-    chelt = read(cheltuieli, nr_apartament)
-    print(f'Numarul apartamentului este: {get_nr_apartament(chelt)}')
-    print(f'Suma ce trebuie cheltuita este: {get_suma(chelt)}')
-    print(f'Data la care s-au generat costurile: {get_data(chelt)}')
-    print(f'Tipul cheltuielii este: {get_tipul(chelt)}')
+def ui_sterge_toate_cheltuielile_apartament(lista, undo_list, redo_list):
+    """
+    Sterge toate cheltuielile pentru un apartament dat
+    :param redo_list: lista pentru redo
+    :param undo_list: lista pentru undo
+    :param lista: lista de cheltuieli
+    :return: lista fara cheltuielile pentru apartamentul specificat
+    """
+    try:
+        numar_apartament = int(input("Dati numarul apartamentului pentru care doriti sa stergeti toate cheltuielile: "))
+        rezultat = sterge_toate_cheltuielile_apartament(numar_apartament, lista, undo_list, redo_list)
+        return rezultat
+    except ValueError as ve:
+        print(f"Eroare: {ve}")
+        return lista
 
 
-def handel_crud(cheltuieli):
+def ui_adauga_valoare_data(lista, undo_list, redo_list):
+    """
+    Adauga o valoare la o data specificata
+    :param redo_list: lista pentru redo
+    :param undo_list: lista pentru undo
+    :param lista: lista de cheltuieli
+    :return: lista de cheltuieli cu modificarile facute
+    (s-a adaugat valoare introdusa la toate cheltuielile din data introdusa)
+    """
+    try:
+        data = datetime.datetime.strptime(input("Introduceti data la care doriti sa adaugati valoarea: "), "%d.%m.%Y")
+        data_string = datetime.datetime.strftime(data, "%d.%m.%Y")
+        valoare = float(input("Introduceti valoarea pe care doriti sa o adaugati: "))
+        rezultat = adauga_valoare_data(data_string, valoare, lista, undo_list, redo_list)
+        return rezultat
+    except ValueError as ve:
+        print(f"Eroare: {ve}")
+        return lista
+
+
+def ui_cea_mai_mare_cheltuiala_dupa_tip(lista):
+    """
+    Afiseaza cea mai mare suma pentru fiecare tip de cheltuiala
+    :param lista: lista de cheltuieli
+    :return: cea mai mare suma pentru fiecare tip de cheltuiala din lista
+    """
+    if not lista:
+        print("Nu exista cheltuieli in lista !")
+        return lista
+    rezultat = cea_mai_mare_cheltuiala_dupa_tip(lista)
+    for tip in rezultat:
+        print(f"Tipul {tip} are cheltuiala cu valoarea maxima: {to_string(rezultat[tip])}")
+
+
+def ui_ordonare_descrescator_cheltuieli_dupa_suma(lista, undo_list, redo_list):
+    """
+    Ordoneaza descrescator dupa suma cheltuielile din lista
+    :param redo_list: lista pentru redo
+    :param undo_list: lista pentru undo
+    :param lista: lista de cheltuieli
+    :return: lista ordonata descresctaor dupa suma
+    """
+    if not lista:
+        print("Nu exista cheltuieli in lista !")
+        return lista
+    else:
+        rezultat = ordonare_descrescator_cheltuieli_dupa_suma(lista, undo_list, redo_list)
+        return rezultat
+
+
+def ui_sume_lunare_apartament(lista):
+    if not lista:
+        print("Nu exista cheltuieli in lista!")
+        return lista
+    else:
+        rezultat = sume_lunare_apartament(lista)
+        for apartament in rezultat:
+            for data in rezultat[apartament]:
+                print(f"Apartamentul {apartament} are sumele lunare pentru {data} : {rezultat[apartament][data]} ")
+
+
+def ui_undo(lista, undo_list, redo_list) -> list:
+    """
+    Face undo
+    :param lista: lista careia vrem sa-i facem undo
+    :param undo_list: lista pentru undo
+    :param redo_list: lista pentru redo
+    :return: undo la lista
+    """
+    if len(undo_list) > 0:
+        redo_list.append(lista)
+        return undo_list.pop()
+    return lista
+
+
+def ui_redo(lista, undo_list, redo_list) -> list:
+    """
+    Face redo
+    :param lista: lista careia vrem sa-i facem redo
+    :param undo_list: lista pentru undo
+    :param redo_list: lista pentru redo
+    :return: redo la lista
+    """
+    if len(redo_list) > 0:
+        undo_list.append(lista)
+        return redo_list.pop()
+    return lista
+
+
+def run_menu(lista):
+    undo_list = []
+    redo_list = []
     while True:
-        print('1. Adaugare cheltuiala')
-        print('2. Modificare cheltuiala')
-        print('3. Stergere cheltuiala')
-        print('a. Afisare')
-        print('d. Detalii cheltuiala')
-        print('r. Revenire')
-
-        optiune = input('Alegeti optiunea: ')
-        if optiune == '1':
-            cheltuieli = handle_add(cheltuieli)
-        elif optiune == '2':
-            cheltuieli = handle_modify(cheltuieli)
-        elif optiune == '3':
-            cheltuieli = handle_delete(cheltuieli)
-        elif optiune == 'a':
-            handle_show_all(cheltuieli)
-        elif optiune == 'd':
-            handle_show_details(cheltuieli)
-        elif optiune == 'r':
+        print_meniu()
+        optiune = input("Dati optiunea: ")
+        if optiune == "1":
+            lista = ui_adauga_cheltuiala(lista, undo_list, redo_list)
+        elif optiune == "2":
+            lista = ui_sterge_cheltuiala(lista, undo_list, redo_list)
+        elif optiune == "3":
+            lista = ui_modifica_cheltuiala(lista, undo_list, redo_list)
+        elif optiune == "4":
+            lista = ui_sterge_toate_cheltuielile_apartament(lista, undo_list, redo_list)
+        elif optiune == "5":
+            lista = ui_adauga_valoare_data(lista, undo_list, redo_list)
+        elif optiune == "6":
+            ui_cea_mai_mare_cheltuiala_dupa_tip(lista)
+        elif optiune == "7":
+            lista = ui_ordonare_descrescator_cheltuieli_dupa_suma(lista, undo_list, redo_list)
+        elif optiune == "8":
+            ui_sume_lunare_apartament(lista)
+        elif optiune.lower() == "u":
+            if len(undo_list) == 0:
+                print("Nu se poate face undo !")
+            lista = ui_undo(lista, undo_list, redo_list)
+        elif optiune.lower() == "r":
+            if len(redo_list) == 0:
+                print("Nu se poate face redo !")
+            lista = ui_redo(lista, undo_list, redo_list)
+        elif optiune.lower() == "a":
+            if len(lista) > 0:
+                show_all(lista)
+            else:
+                print("Nu exista cheltuieli in lista !")
+        elif optiune.lower() == "x":
             break
         else:
-            print('Optiune invalida, incercati din nou! ')
-    return cheltuieli
-
-def delete_all_expenses_for_apartement(cheltuieli):
-    try:
-        nr_ap = int(input('Dati numarul apartamentului caruia i se vor sterge cheltuielile: '))
-        cheltuieli = delete_all_expenses(cheltuieli, nr_ap)
-        print(f'Cheltuieleile apartamentului cu numarul {nr_ap} au fost sterse! ')
-    except ValueError as ve:
-        print('Eroare:  {ve}')
-    return cheltuieli
-
-
-def add_sum_to_date(cheltuieli):
-    try:
-        data = read_date()
-        if data is None:
-            raise ValueError("Data nu a fost introdusa corespunzator")
-        valoare = float(input('Dati valoarea ce trebuie adunata: '))
-        cheltuieli = add_value_if_date(cheltuieli, data, valoare)
-        return cheltuieli
-    except ValueError as ve:
-        print('Eroare:  {ve}')
-    return cheltuieli
-
-
-def get_biggest_chelt(cheltuieli):
-    result = biggest_sum_by_type(cheltuieli)
-    for tipul in result:
-        print(f'Tipul {tipul} are suma maxima {result[tipul]}. ')
-
-
-def run_ui(cheltuieli):
-    while True:
-        show_menu()
-        optiune = input('Alegeti o optiune: ')
-        print()
-        if optiune == '1':
-            cheltuieli = handel_crud(cheltuieli)
-        elif optiune == '2':
-            nr_apartament = int(input('Dati numarul apartamentului caruia i se vor sterge cheltuielile: '))
-            cheltuieli = delete_all_costs_for_apartement(cheltuieli, nr_ap)
-            print(f'Apartamentul cu numarul {nr_apartament} a fost sters, neavand nicio cheltuiala! ')
-        elif optiune == '3':
-            cheltuieli = add_sum_to_date(cheltuieli)
-        elif optiune == '4':
-            cheltuieli = get_biggest_chelt(cheltuieli)
-        elif optiune == '5':
-            pass
-        elif optiune == '6':
-            pass
-        elif optiune == 'x':
-            break
-        else:
-            print('Optiune incorecta, incercati din nou! ')
-    return cheltuieli
+            print("Optiune invalida ! Reincercati..")

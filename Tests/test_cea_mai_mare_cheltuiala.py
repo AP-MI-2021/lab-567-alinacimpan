@@ -1,22 +1,19 @@
-from Logic.cea_mai_mare_cheltuiala import biggest_sum_by_type
+from Domain.cheltuiala import get_id
+from Logic.crud import adauga_cheltuiala
+from Logic.cea_mai_mare_cheltuiala import cea_mai_mare_cheltuiala_dupa_tip
 
-def get_data():
-    """
-    Functie suport pentru functiile de test
-    """
-    return \
-        [
-            creeaza_cheltuiala(23, 5, 123, datetime.date(2021, 6, 20), 'canal'),
-            creeaza_cheltuiala(56, 6, 200, datetime.date(2021, 6, 20), 'intretinere'),
-            creeaza_cheltuiala(19, 3, 390, datetime.date(2020, 12, 12), 'alte cheltuieli'),
-            creeaza_cheltuiala(34, 7, 100, datetime.date(2018,  5, 20), 'canal')
+def test_cea_mai_mare_cheltuiala_dupa_tip():
+    lista = []
+    lista = adauga_cheltuiala(1, 13, 150, "12.03.2021", "alte cheltuieli", lista)
+    lista = adauga_cheltuiala(2, 90, 200, "23.10.2021", "intretinere", lista)
+    lista = adauga_cheltuiala(3, 45, 89.45, "04.10.2021", "canal", lista)
+    lista = adauga_cheltuiala(4, 87, 78.90, "07.12.2021", "canal", lista)
+    lista = adauga_cheltuiala(5, 56, 567.78, "14.01.2020", "intretinere", lista)
+    lista = adauga_cheltuiala(6, 17, 70, "31.12.2020", "alte cheltuieli", lista)
 
-        ]
+    rezultat = cea_mai_mare_cheltuiala_dupa_tip(lista)
 
-def test_biggest_sum_by_type():
-    cheltuieli = get_datas()
-    result = biggest_sum_by_type(cheltuieli)
-    assert len(result) == 3
-    assert result['canal'] == 123
-    assert result['intretinere'] == 200
-    assert result['alte cheltuieli'] == 390
+    assert len(rezultat) == 3
+    assert get_id(rezultat["canal"]) == 3
+    assert get_id(rezultat["intretinere"]) == 5
+    assert get_id(rezultat["alte cheltuieli"]) == 1
