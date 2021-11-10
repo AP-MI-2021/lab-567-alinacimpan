@@ -1,9 +1,9 @@
 from Logic.crud import adauga_cheltuiala, get_by_id
-from userinterface.console import ui_redo, ui_undo
+from Userinterface.console import ui_redo, ui_undo
 
 
 def test_undo_and_redo():
-    # lista goala
+
     lista = []
     undo_list = []
     redo_list = []

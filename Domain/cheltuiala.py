@@ -1,4 +1,3 @@
-import datetime
 
 
 def creeaza_cheltuiala(id_cheltuiala,nr_apartament: int, suma, data, tipul):
@@ -12,7 +11,7 @@ def creeaza_cheltuiala(id_cheltuiala,nr_apartament: int, suma, data, tipul):
     :return: O cheltuiala.
     """
 
-    return [id_cheltuiala,nr_apartament, suma, data, tipul]
+    return [id_cheltuiala, nr_apartament, suma, data, tipul]
 
 
 def get_id_cheltuiala(cheltuiala):
@@ -23,16 +22,7 @@ def get_id_cheltuiala(cheltuiala):
     """
     return cheltuiala[0]
 
-def get_by_id(id, cheltuieli):
-    '''
-    Functie folosita pentru exceptie, in care id-ul deja se afla in cheltuieli.
-    :param id: id-ul chetluielii.
-    :param cheltuieli: lista de cheltuieli.
-    :return: returneaza cheltuiala cu id-ul dat.
-    '''
-    for cheltuiala in cheltuieli:
-        if get_id_cheltuiala(cheltuiala) == id:
-            return cheltuiala
+
 
 
 def get_nr_apartament(cheltuiala):

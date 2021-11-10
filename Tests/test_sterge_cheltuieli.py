@@ -1,5 +1,5 @@
 from Logic.crud import adauga_cheltuiala, get_by_numar_apartament
-from Logic.sterge_cheltuieli import sterge_toate_cheltuielile_apartament
+from Logic.Sterge_cheltuieli import sterge_toate_cheltuielile_apartament
 
 def test_sterge_toate_cheltuielile_apartament():
     lista = []

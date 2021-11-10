@@ -1,4 +1,4 @@
-from Domain.cheltuiala import get_id
+from Domain.cheltuiala import get_id_cheltuiala
 from Logic.crud import adauga_cheltuiala
 from Logic.cea_mai_mare_cheltuiala import cea_mai_mare_cheltuiala_dupa_tip
 
@@ -14,6 +14,6 @@ def test_cea_mai_mare_cheltuiala_dupa_tip():
     rezultat = cea_mai_mare_cheltuiala_dupa_tip(lista)
 
     assert len(rezultat) == 3
-    assert get_id(rezultat["canal"]) == 3
-    assert get_id(rezultat["intretinere"]) == 5
-    assert get_id(rezultat["alte cheltuieli"]) == 1
+    assert get_id_cheltuiala(rezultat["canal"]) == 3
+    assert get_id_cheltuiala(rezultat["intretinere"]) == 5
+    assert get_id_cheltuiala(rezultat["alte cheltuieli"]) == 1

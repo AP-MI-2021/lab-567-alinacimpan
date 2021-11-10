@@ -3,10 +3,10 @@ from Logic.crud import adauga_cheltuiala, sterge_cheltuiala
 
 
 def print_meniu():
-    print("Comenzile introduse trebuie separate prin ;, acestea putand fi: \n"
-          "Adaugare: add,id,numar apartament,suma,data,tipul \n"
-          "Stergere: delete,id-ul cheltuielii de sters \n"
-          "Afisare: showall \n"
+    print("Comenzile introduse trebuie separate prin ;, acestea putand fi: "
+          "Adaugare: add,id,numar apartament,suma,data,tipul "
+          "Stergere: delete,id-ul cheltuielii de sters "
+          "Afisare: showall "
           "Atentie !!! Comenzile trebuie introduse exact ca in modelul de mai sus !")
 
 
