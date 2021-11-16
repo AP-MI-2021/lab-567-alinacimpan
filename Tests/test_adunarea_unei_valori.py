@@ -1,22 +1,22 @@
-from Domain.cheltuiala import get_suma, get_tipul, get_data
-from Logic.crud import adauga_cheltuiala, get_by_id
-from Logic.Adunarea_unei_valori import adauga_valoare_data
+from Logic.adunarea_unei_valori import adunare_valoare_for_data
+from Tests.test_crud import get_info
 
-def test_adauga_valoare_data():
-    lista = []
-    lista = adauga_cheltuiala(1, 13, 150, "12.03.2021", "alte cheltuieli", lista)
-    lista = adauga_cheltuiala(2, 45, 200, "23.10.2021", "intretinere", lista)
-    lista = adauga_cheltuiala(3, 45, 89.45, "12.03.2021", "canal", lista)
 
-    lista = adauga_valoare_data("12.03.2021", 45.50, lista)
-    assert len(lista) == 3
-    cheltuiala_modificata_1 = get_by_id(1, lista)
-    assert get_suma(cheltuiala_modificata_1) == 195.50
-    assert get_data(cheltuiala_modificata_1) == "12.03.2021"
-    assert get_tipul(cheltuiala_modificata_1) == "alte cheltuieli"
-    cheltuiala_modificata_2 = get_by_id(3, lista)
-    assert get_suma(cheltuiala_modificata_2) == 134.95
-    assert get_data(cheltuiala_modificata_2) == "12.03.2021"
-    cheltuiala_nemodificata = get_by_id(2, lista)
-    assert get_suma(cheltuiala_nemodificata) == 200
-    assert get_data(cheltuiala_nemodificata) == "23.10.2021"
+def test_adunare_valoare_pt_data():
+    lista_cheltuieli = get_info()
+    data = '12.10.2002'
+    val = 100
+    new_lista_cheltuieli = adunare_valoare_for_data(lista_cheltuieli, data, val, [], [])
+    assert len(new_lista_cheltuieli) == len(lista_cheltuieli)
+    try:
+        alta_data = '01.01.10000' # data e gresita
+        new_lista_cheltuieli = adunare_valoare_for_data(new_lista_cheltuieli, alta_data, val, [], [])
+        assert False
+    except ValueError:
+        assert True
+    try:
+        alta_data = '01.01.1010' #nu exista cheltuiala cu o asemenea data
+        new_lista_cheltuieli = adunare_valoare_for_data(new_lista_cheltuieli, alta_data, val, [], [])
+        assert False
+    except ValueError:
+        assert True

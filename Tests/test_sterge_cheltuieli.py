@@ -1,14 +1,18 @@
-from Logic.crud import adauga_cheltuiala, get_by_numar_apartament
-from Logic.Sterge_cheltuieli import sterge_toate_cheltuielile_apartament
+from Logic.sterge_cheltuieli import sterge_pt_nr_ap
+from Logic.crud import read
+from Tests.test_crud import get_info
 
-def test_sterge_toate_cheltuielile_apartament():
-    lista = []
-    lista = adauga_cheltuiala(1, 13, 150, "06.10.2021", "canal", lista)
-    lista = adauga_cheltuiala(2, 45, 200, "23.10.2021", "intretinere", lista)
-    lista = adauga_cheltuiala(3, 45, 89.45, "12.03.2021", "canal", lista)
 
-    lista = sterge_toate_cheltuielile_apartament(45, lista)
-    assert len(lista) == 1
-    assert get_by_numar_apartament(45, lista) == []
-    assert get_by_numar_apartament(13, lista) == [[("id", 1), ("numar_apartament", 13), ("suma", 150),
-                                                   ("data", "06.10.2021"), ("tipul", "canal")]]
+def test_Stergere_cheltuieli():
+    lst_cheltuieli = get_info()
+    nr_ap = 3
+    new_lst_cheltuieli = sterge_pt_nr_ap(lst_cheltuieli, nr_ap, [], [])
+    assert len(new_lst_cheltuieli) == len(lst_cheltuieli) - 2
+    assert read(lst_cheltuieli, 3) is not None
+    assert read(new_lst_cheltuieli, 3) is None # am sters prajitura de id 3, cu nr_ap 3
+    alt_nr_ap = 12
+    try:
+        lista_noua_cheltuieli = sterge_pt_nr_ap(lst_cheltuieli, alt_nr_ap, [], [])
+        assert False
+    except ValueError:
+        assert True
